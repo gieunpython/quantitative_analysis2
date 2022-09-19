@@ -8,20 +8,20 @@ import plotly.graph_objects as go
 import plotly.offline as pyo
 # import data
 
-stockList = ["AAPL", "META", "AMZN", "XOM"]
+stocklist = ["BHP.AX", "CBA.AX", "TLS.AX"]
 endDate = dt.datetime.now()
 startDate = endDate - dt.timedelta(days=365)
 
 
-def getData(stocks, start, end):
-    stockData = pdr.get_data_yahoo(stocks, start=start, end = end)
+def getData(stocklist, start, end):
+    stockData = pdr.get_data_yahoo(stocklist, start=start, end = end)
     stockData = stockData['Close']
     returns = stockData.pct_change()
     meanReturns = returns.mean()
     covMatrix = returns.cov()
     return meanReturns, covMatrix
 
-meanReturns, covMatrix = getData(stockList, start=startDate, end=endDate)
+meanReturns, covMatrix = getData(stocklist, start=startDate, end=endDate)
 
 def portfolioPerformance(weights, meanReturns, covMatrix):
     returns = np.sum(meanReturns*weights)*252
@@ -98,7 +98,7 @@ def calculatedResults(meanReturns, covMatrix, riskFreeRate = 0 , constrainSet = 
 
 def EF_graph(meanReturns, covMatrix, riskFreeRate =0 , constrainSet = (0,1)):
     """return a graph ploting the min vol, max sr, and efficient frontier"""
-    maxSR_returns, maxSR_std, maxSR_allocation, minVol_returns, minVol_std, minVol_allocation, efficientList, targetReturns = calculatedResults(meanReturns, covMatrix, riskFreeRate = 0 , constrainSet = (0,1))
+    maxSR_returns, maxSR_std, maxSR_allocation, minVol_returns, minVol_std, minVol_allocation, efficientList, targetReturns = calculatedResults(meanReturns, covMatrix, riskFreeRate, constrainSet)
 
     #Max SR
     MaxSharpeRatio = go.Scatter( 
@@ -143,7 +143,7 @@ def EF_graph(meanReturns, covMatrix, riskFreeRate =0 , constrainSet = (0,1)):
                 height=600)
 
     fig = go.Figure(data = data, layout = layout)
-    return fig.show()
+    return fig.write_html("EF.html", auto_open=True)
 
 EF_graph(meanReturns, covMatrix)
 
